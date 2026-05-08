@@ -64,7 +64,7 @@ const WatchPage = () => {
   if (!movie) return <NotFound />;
 
   return (
-    <main className="flex flex-col min-h-screen bg-[#050505] text-white font-sans overflow-x-hidden">
+    <main className="flex flex-col min-h-screen bg-[#050505] text-white font-sans">
       {/* 1. Full Viewport Video Section */}
       <section className="relative w-full h-screen shrink-0 bg-black overflow-hidden group">
         {/* Overlaid Top Header */}
@@ -168,10 +168,10 @@ const WatchPage = () => {
           작품에 대한 평가를 남겨보세요
         </div>
 
-        {/* Detail Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-16">
-          {/* Left: Community & Reviews */}
-          <div className="space-y-8">
+        {/* Main Content Flex Layout */}
+        <div className="flex flex-col lg:flex-row gap-16 items-start">
+          {/* Left Column: Comments (flex-1) */}
+          <div className="flex-1 space-y-8 min-w-0">
             {/* Regular Review & Reply */}
             <div className="space-y-4">
               <div className="bg-zinc-800/80 border border-white/10 p-6 rounded-lg relative hover:bg-zinc-700/80 transition-colors cursor-default">
@@ -217,12 +217,53 @@ const WatchPage = () => {
               <span className="absolute bottom-4 right-6 text-[10px] font-bold text-zinc-500">지욱이형이포함됨</span>
             </div>
 
-            {/* Additional User Comments */}
+            {/* Additional User Comments (Massive List for scrolling) */}
             {[
               { text: "군중 속의 고독을 느끼는 현대인들의 공허함을 라디오라는 아날로그 매체로 따뜻하게, 때로는 서늘하게 어루만져 줍니다.", user: "이정우" },
               { text: "마지막 장면이 계속 생각나네요. 다음 작품도 기대됩니다!", user: "박지성" },
               { text: "이런 분위기의 영화 너무 좋아요. 음악 선정도 탁월했습니다.", user: "최수진" },
-              { text: "배우들 연기가 정말 좋네요. 보는 내내 시간이 가는 줄 몰랐어요.", user: "정민수" }
+              { text: "배우들 연기가 정말 좋네요. 보는 내내 시간이 가는 줄 몰랐어요.", user: "정민수" },
+              { text: "정말 최고의 영화였습니다! 연출이 미쳤어요.", user: "김철수" },
+              { text: "연출력이 돋보이는 작품이네요. 색감이 너무 예쁩니다.", user: "이영희" },
+              { text: "음악이 영화의 분위기를 잘 살려주네요. 몰입감 최고!", user: "박민수" },
+              { text: "배우들의 연기력이 대단합니다. 소름 돋았어요.", user: "최지우" },
+              { text: "스토리가 탄탄해서 몰입감이 최고였어요. 끝까지 긴장되네요.", user: "강동원" },
+              { text: "영상이 너무 아름다워요. 한 장면 한 장면이 예술이네요.", user: "한지민" },
+              { text: "꼭 극장에서 봐야 할 영화네요. 스케일이 큽니다.", user: "정우성" },
+              { text: "감동적인 메시지가 있는 영화입니다. 눈물 났어요.", user: "김혜수" },
+              { text: "추천하고 싶은 명작입니다. 친구들에게 다 알려주려고요.", user: "이병헌" },
+              { text: "보는 내내 긴장감을 놓칠 수 없었네요. 대박!", user: "손예진" },
+              { text: "인생 영화 등극! 정말 오랜만에 좋은 영화 봤습니다.", user: "공유" },
+              { text: "친구들에게 추천해야겠어요. 다들 좋아할 것 같아요.", user: "전지현" },
+              { text: "감독님의 차기작이 기대됩니다. 벌써부터 기다려지네요.", user: "유재석" },
+              { text: "여러 번 봐도 질리지 않을 것 같아요. 다시 보러 갑니다.", user: "김연아" },
+              { text: "대사 하나하나가 주옥같네요. 가슴에 와닿습니다.", user: "봉준호" },
+              { text: "작품성이 뛰어난 영화입니다. 예술 영화의 정수!", user: "송강호" },
+              { text: "가슴이 뭉클해지는 영화였어요. 여운이 길게 남네요.", user: "조인성" },
+              { text: "화려한 액션이 인상 깊네요. 눈이 즐거웠습니다.", user: "현빈" },
+              { text: "철학적인 고민을 하게 만드는 영화입니다. 생각이 많아지네요.", user: "박보검" },
+              { text: "완벽한 영화 그 자체입니다. 흠잡을 곳이 없어요.", user: "아이유" },
+              { text: "심장이 멎는 듯한 긴장감... 정말 최고였습니다.", user: "김남길" },
+              { text: "인간의 본성을 꿰뚫는 통찰력이 돋보이는 수작입니다.", user: "김윤석" },
+              { text: "단순한 재미를 넘어 깊은 감동을 선사하네요.", user: "조승우" },
+              { text: "이 영화는 두 번 봐야 합니다. 디테일이 살아있어요.", user: "하정우" },
+              { text: "올해 최고의 발견! 감독님의 팬이 되었습니다.", user: "문소리" },
+              { text: "배우들의 케미가 정말 환상적이네요.", user: "남주혁" },
+              { text: "다시 봐도 소름 돋는 연출... 명작입니다.", user: "이지은" },
+              { text: "이 영화 안 본 사람 없게 해주세요.", user: "김도연" },
+              { text: "감독님의 예술적 감각이 폭발하는 작품!", user: "박찬욱" },
+              { text: "스토리의 깊이가 남다릅니다.", user: "심은경" },
+              { text: "배경 음악이 너무 좋아서 플레이리스트에 담았어요.", user: "이선균" },
+              { text: "매 장면 캡처하고 싶을 정도로 예뻐요.", user: "김태리" },
+              { text: "여운이 가시질 않아 잠을 못 이룰 것 같네요.", user: "박서준" },
+              { text: "이런 영화가 더 많이 제작되었으면 좋겠습니다.", user: "류승룡" },
+              { text: "감동과 재미, 두 마리 토끼를 다 잡았네요.", user: "조진웅" },
+              { text: "진정한 영화란 이런 것임을 보여줍니다.", user: "정해인" },
+              { text: "모든 것이 완벽한 균형을 이루고 있어요.", user: "김희애" },
+              { text: "가슴 벅찬 감동을 느꼈습니다.", user: "박보영" },
+              { text: "영화의 온도가 느껴지는 따뜻한 작품입니다.", user: "서강준" },
+              { text: "긴 시간 동안의 작업이 빛을 발하네요.", user: "유아인" },
+              { text: "현실의 고단함을 잊게 해주는 영화적 체험이었습니다.", user: "김수현" }
             ].map((comment, idx) => (
               <div key={idx} className="bg-zinc-800/80 border border-white/10 p-6 rounded-lg relative hover:bg-zinc-700/80 transition-colors cursor-default">
                 <p className="font-bold text-zinc-100">{comment.text}</p>
@@ -231,9 +272,8 @@ const WatchPage = () => {
             ))}
           </div>
 
-          {/* Right: Sidebar */}
-          <div className="space-y-12">
-            {/* Director's Word */}
+          {/* Right Column: Sidebar (Sticky) */}
+          <aside className="w-full lg:w-[400px] sticky top-8 space-y-12 self-start">
             {/* Director's Word */}
             <div className="bg-white/11 border border-white/10 p-8 rounded-lg space-y-6 hover:bg-white/15 transition-colors cursor-default group">
               <div className="inline-block bg-amber-500 px-4 py-1 rounded text-xs font-black text-black group-hover:bg-amber-400 transition-colors">
@@ -263,7 +303,7 @@ const WatchPage = () => {
                 </a>
               </div>
             </div>
-          </div>
+          </aside>
         </div>
       </div>
 
