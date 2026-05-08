@@ -7,6 +7,7 @@ import FeedbackPage from '../pages/FeedbackPage';
 import CreatorProfilePage from '../pages/CreatorProfilePage';
 import UserMyPage from '../pages/UserMyPage';
 import UploadPage from '../pages/UploadPage';
+import CreatorDashboardPage from '../pages/CreatorDashboardPage';
 import NotFound from '../pages/NotFound';
 
 /**
@@ -33,6 +34,10 @@ export const router = createBrowserRouter([
       {
         path: 'movies/:movieId/feedback',
         element: <FeedbackPage />,
+      },
+      {
+        path: 'movies/:movieId/dashboard',
+        element: <CreatorDashboardPage />,
       },
       {
         path: 'creators/:creatorId',
