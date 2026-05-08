@@ -1,5 +1,6 @@
 import { useState } from "react";
 import MovieCard from "../components/molecules/MovieCard";
+import { useNavigate } from "react-router-dom";
 
 const AVAILABLE_TAGS = [
    "액션", "코미디", "드라마", "로맨스", "스릴러", "공포",
@@ -18,6 +19,10 @@ const UploadPage = () => {
       synopsis: "",
       directingIntention: ""
    });
+
+   const [showSuccessModal, setShowSuccessModal] = useState(false);
+   const [validationError, setValidationError] = useState("");
+   const navigate = useNavigate();
 
    const previewMovie = {
       id: 999,
@@ -133,11 +138,78 @@ const UploadPage = () => {
                      </div>
                   </div>
 
-                  <button className="w-full py-5 bg-amber-500 text-black font-black uppercase tracking-widest rounded-2xl shadow-2xl hover:bg-amber-400 transition transform active:scale-[0.98]">
+                  {validationError && (
+                     <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-500 text-xs font-black uppercase tracking-widest text-center animate-in fade-in slide-in-from-top-2">
+                        {validationError}
+                     </div>
+                  )}
+
+                  <button 
+                     type="button"
+                     onClick={() => {
+                        if (!formData.title || formData.tags.length === 0 || !formData.synopsis || !formData.directingIntention || !formData.description) {
+                           setValidationError("필수 정보를 모두 입력해주세요.");
+                           return;
+                        }
+                        
+                        setValidationError("");
+                        
+                        // Save to localStorage to simulate upload
+                        const uploadedMovie = {
+                           id: Date.now(),
+                           ...formData,
+                           status: "업로드 완료",
+                           createdAt: new Date().toLocaleDateString(),
+                           views: 106,
+                           feedbackCount: 18,
+                           saves: 42,
+                           rating: "NEW"
+                        };
+                        localStorage.setItem("movon_uploaded_movie", JSON.stringify(uploadedMovie));
+                        setShowSuccessModal(true);
+                     }}
+                     className="w-full py-5 bg-amber-500 text-black font-black uppercase tracking-widest rounded-2xl shadow-2xl hover:bg-amber-400 transition transform active:scale-[0.98]"
+                  >
                      Publish Project
                   </button>
                </form>
             </div>
+
+            {/* Success Modal */}
+            {showSuccessModal && (
+               <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
+                  <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowSuccessModal(false)} />
+                  <div className="relative w-full max-w-md bg-zinc-900 border border-white/10 rounded-[2rem] p-10 shadow-2xl space-y-8 animate-in fade-in zoom-in duration-300">
+                     <div className="w-16 h-16 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center justify-center text-3xl mx-auto">
+                        ✨
+                     </div>
+                     <div className="text-center space-y-3">
+                        <h2 className="text-2xl font-black tracking-tighter uppercase">업로드가 완료되었습니다!</h2>
+                        <p className="text-sm font-medium text-zinc-400 leading-relaxed">
+                           작품이 MOV:ON에 성공적으로 등록되었습니다.<br />
+                           나의 프로필에서 업로드한 영화와 관객 반응을 확인할 수 있습니다.
+                        </p>
+                     </div>
+                     <div className="space-y-3">
+                        <button 
+                           onClick={() => navigate("/mypage")}
+                           className="w-full py-4 bg-amber-500 text-black font-black uppercase tracking-widest rounded-2xl hover:bg-amber-400 transition transform active:scale-95 shadow-lg shadow-amber-500/20"
+                        >
+                           나의 프로필로 이동
+                        </button>
+                        <button 
+                           onClick={() => navigate("/")}
+                           className="w-full py-4 bg-white/5 border border-white/10 text-zinc-400 font-black uppercase tracking-widest rounded-2xl hover:bg-white/10 transition"
+                        >
+                           홈화면으로 이동
+                        </button>
+                     </div>
+                     <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest text-center">
+                        업로드된 작품은 언제든지 감독 대시보드에서 수정할 수 있습니다.
+                     </p>
+                  </div>
+               </div>
+            )}
 
             {/* Real-time Preview */}
             <div className="relative">
