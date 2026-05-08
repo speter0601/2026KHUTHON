@@ -1,11 +1,27 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
 
 /**
- * Enhanced MovieCard Component
- * Renders a movie as a cinematic film poster with typography overlays.
- * Supports different poster tones (melancholy, noir, warm, etc.)
+ * MovieCard with Soft Transitions & External Depth
+ * Refines the shadow for a floating effect and eliminates harsh lines in the preview panel.
+ * Keeps the poster image clear and visible, focusing on external depth rather than internal darkening.
  */
 const MovieCard = ({ movie, onClick }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  // 1. Hard Fallback Content
+  const title = movie?.title || movie?.posterTitle || "Untitled Film";
+  const director = movie?.director || "Unknown Director";
+  const description = movie?.description || movie?.synopsis || "MOV:ON에서 소개하는 독립영화 작품입니다. 감독의 독창적인 시선과 감각적인 영상미를 확인해보세요.";
+  const rating = movie?.rating || "4.5";
+  const tags = movie?.tags?.length
+    ? movie.tags.slice(0, 3)
+    : (movie?.genres?.slice(0, 3) || ["독립영화", "예술", "감성"]);
+
+  // 2. Safe Preview Image
+  const previewImage = movie?.videoThumbnail || movie?.stillImage || movie?.posterImage;
+  const posterImage = movie?.posterImage || movie?.stillImage;
+
   // Styles based on posterTone
   const toneStyles = {
     melancholy: "from-blue-900/40 via-transparent to-black/80",
@@ -16,91 +32,134 @@ const MovieCard = ({ movie, onClick }) => {
     minimal: "from-zinc-800/10 via-transparent to-black/60",
     blue: "from-indigo-900/40 via-transparent to-black/80",
     documentary: "from-stone-900/40 via-transparent to-black/80",
+    romance: "from-pink-900/30 via-transparent to-black/80",
+    thriller: "from-red-900/40 via-transparent to-black/95",
   };
 
   const currentTone = toneStyles[movie?.posterTone] || toneStyles.minimal;
 
   return (
-    <div 
+    <article
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       onClick={() => onClick && onClick(movie)}
-      className="group cursor-pointer block relative animate-in fade-in slide-in-from-bottom-4 duration-500"
+      className={`relative h-[320px] transition-[flex-grow,flex-basis,width,transform,box-shadow,border-color] duration-[520ms] ease-[cubic-bezier(0.16,1,0.3,1)] cursor-pointer overflow-hidden rounded-xl bg-zinc-950 border border-white/10 group flex
+        ${isHovered
+          ? "md:min-w-[520px] md:flex-[2.8] border-white/20 shadow-[0_32px_80px_rgba(0,0,0,0.5),0_0_30px_rgba(245,158,11,0.06)] z-30"
+          : "flex-1 min-w-[200px] shadow-lg z-10"}
+      `}
     >
-      {/* Poster Container */}
-      <div className={`relative aspect-[10/15] overflow-hidden rounded-xl bg-zinc-900 shadow-2xl transition-all duration-500 group-hover:shadow-[0_20px_50px_-10px_rgba(245,158,11,0.2)] group-hover:-translate-y-2 border border-white/5`}>
-        {/* Poster Image */}
+      {/* External Cinematic Depth Layer (Floating Shadow) */}
+      <div className={`absolute inset-0 z-0 bg-gradient-to-br from-white/5 via-transparent to-amber-500/5 transition-opacity duration-[520ms] pointer-events-none ${isHovered ? "opacity-100" : "opacity-0"}`} />
+
+      {/* --- POSTER SECTION --- */}
+      <div className={`relative h-full shrink-0 transition-[width] duration-[520ms] ease-[cubic-bezier(0.16,1,0.3,1)] z-10 ${isHovered ? "md:w-[220px] w-full" : "w-full"}`}>
         <img
-          src={movie?.posterImage || movie?.stillImage}
-          alt={movie?.title}
-          className={`h-full w-full object-cover transition-transform duration-1000 group-hover:scale-110 ${movie?.posterTone === 'noir' ? 'grayscale-[0.4]' : ''}`}
+          src={posterImage}
+          alt={title}
+          className={`h-full w-full object-cover transition-all duration-1000 ${isHovered ? "brightness-[0.85] contrast-105" : "brightness-100"} ${movie?.posterTone === 'noir' ? 'grayscale-[0.2]' : ''}`}
         />
-        
-        {/* Gradient Overlay for Text Readability */}
-        <div className={`absolute inset-0 bg-gradient-to-t ${currentTone} transition-opacity duration-500`} />
-        
-        {/* Poster Internal Typography */}
-        <div className="absolute inset-0 p-5 flex flex-col justify-between pointer-events-none">
-           {/* Top: Tagline & Award */}
-           <div className="space-y-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
-              <p className="text-[8px] font-black tracking-[0.2em] text-amber-500 uppercase drop-shadow-md">
-                 {movie?.awardText}
-              </p>
-              <p className="text-[10px] font-bold text-zinc-300 leading-tight italic drop-shadow-lg">
-                 {movie?.tagline ? `"${movie.tagline}"` : ""}
-              </p>
-           </div>
 
-           {/* Middle/Bottom: Title & Credits */}
-           <div className="space-y-2">
-              <div className="space-y-0.5">
-                 <p className="text-[8px] font-black tracking-widest text-zinc-400 uppercase">
-                    {movie?.posterCredit}
-                 </p>
-                 <h3 className={`font-black tracking-tighter text-white uppercase drop-shadow-2xl transition-all duration-500 group-hover:scale-105 origin-left
-                    ${movie?.posterTone === 'minimal' ? 'text-lg tracking-normal' : 'text-2xl'}
-                 `}>
-                    {movie?.posterTitle || movie?.title}
-                 </h3>
-              </div>
-              
-              <div className="flex items-center gap-2 pt-1">
-                 <div className="h-[1px] w-4 bg-amber-500/50" />
-                 <p className="text-[9px] font-black tracking-widest text-zinc-500 uppercase">
-                    MOV:ON STUDENT FILM FESTIVAL
-                 </p>
-              </div>
-           </div>
-        </div>
+        {/* Cinematic Gradient Overlay (Lightened on Hover) */}
+        <div className={`absolute inset-0 bg-gradient-to-t ${currentTone} transition-opacity duration-[520ms] ${isHovered ? "opacity-20" : "opacity-100"}`} />
 
-        {/* Hover Action Overlay */}
-        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
-           <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white text-xl scale-50 group-hover:scale-100 transition-transform duration-500">
-              ▶
-           </div>
+        {/* Poster Internal Typography (Fixed & Clear) */}
+        <div className={`absolute inset-0 p-5 flex flex-col justify-between pointer-events-none transition-all duration-[520ms] ${isHovered ? "opacity-100 translate-x-0" : "opacity-100 translate-x-0"}`}>
+          <div className="space-y-1">
+            <p className="text-[8px] font-black tracking-[0.3em] text-amber-500 uppercase">{movie?.awardText || "OFFICIAL SELECTION"}</p>
+            <p className="text-[11px] font-bold text-zinc-300 leading-tight italic line-clamp-2">{movie?.tagline}</p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-[8px] font-black tracking-widest text-zinc-400 uppercase">{movie?.posterCredit}</p>
+            <h3 className="text-xl font-black tracking-tighter text-white uppercase leading-tight drop-shadow-lg">{movie?.posterTitle || title}</h3>
+          </div>
         </div>
       </div>
 
-      {/* Metadata Area (Outside Poster) */}
-      <div className="mt-4 px-1 space-y-1">
-        <div className="flex items-center justify-between gap-2">
-          <h4 className="line-clamp-1 text-[14px] font-black tracking-tight text-white group-hover:text-amber-200 transition-colors">
-            {movie?.title}
-          </h4>
-          <div className="flex items-center gap-1 text-[11px] font-black text-amber-500 shrink-0">
-            <span>★</span>
-            <span className="text-zinc-300">{movie?.rating}</span>
+      {/* --- PREVIEW PANEL (RIGHT SIDE) --- */}
+      <div className={`relative flex-1 h-full overflow-hidden transition-[opacity,transform] duration-[520ms] ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col bg-zinc-950 border-l border-white/10 hidden md:flex z-20
+        ${isHovered ? "opacity-100 translate-x-0 pointer-events-auto" : "opacity-0 translate-x-1 pointer-events-none"}
+      `}>
+        {/* 1. Preview Visual Area (Gradient Transition) */}
+        <div className="relative h-36 w-full shrink-0 overflow-hidden bg-zinc-900">
+          <div className="absolute inset-0 z-0">
+            {!imageError && previewImage ? (
+              <img
+                src={previewImage}
+                alt="Preview"
+                onError={() => setImageError(true)}
+                className="w-full h-full object-cover opacity-70 transition-transform duration-1000"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-zinc-800 via-zinc-900 to-black flex flex-col items-center justify-center space-y-1">
+                <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center opacity-30 text-[10px] text-white">▶</div>
+                <span className="text-[8px] font-black text-zinc-600 tracking-[0.3em] uppercase">MOV:ON PREVIEW</span>
+              </div>
+            )}
+
+            {/* Soft Integration Gradient (Replaces Hard Line) */}
+            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent z-10" />
+          </div>
+
+          {/* Centered Minimal Play Icon */}
+          <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+            <div className="w-9 h-9 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/40 text-xs transition-colors duration-[520ms] group-hover:text-amber-500 group-hover:border-amber-500/30">
+              ▶
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest border border-white/5 px-1.5 py-0.5 rounded-sm">
-            {movie?.genres?.[0]}
-          </span>
-          <span className="text-[10px] font-bold text-zinc-600 tracking-tight">
-            {movie?.director} 감독
-          </span>
+        {/* 2. Preview Metadata Content Layer (Optimized Layout) */}
+        <div className={`relative z-30 -mt-12 p-6 flex-1 flex flex-col justify-between transition-[opacity,transform] duration-[520ms] ease-[cubic-bezier(0.16,1,0.3,1)]
+          ${isHovered ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0"}
+        `}>
+          {/* Subtle Glass Backdrop Blur for Integration */}
+          <div className="absolute inset-0 z-0 bg-gradient-to-b from-zinc-950/40 via-zinc-950/90 to-zinc-950 backdrop-blur-[3px] pointer-events-none" />
+
+          <div className="relative z-10 space-y-4">
+            <div className="space-y-1.5">
+              <h4 className="text-lg font-black tracking-tight text-white uppercase truncate leading-none">{title}</h4>
+              <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                <span className="text-amber-400">{director} 감독</span>
+                <span className="w-1 h-1 rounded-full bg-zinc-800" />
+                <div className="flex items-center gap-1 text-amber-500">
+                  ★ <span className="text-zinc-300">{rating}</span>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-[11px] font-medium text-zinc-400 leading-relaxed line-clamp-2">
+              {description}
+            </p>
+
+            {/* Tags Area */}
+            <div className="flex flex-wrap gap-2 pt-1">
+              {tags.slice(0, 2).map((tag, idx) => (
+                <span key={idx} className="text-[8px] font-black text-zinc-500 border border-white/5 bg-white/[0.03] px-2 py-1 rounded uppercase tracking-widest">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Action Buttons Area - Cleanly Aligned at Bottom */}
+          <div className="relative z-10 flex items-center gap-3 pt-4">
+            <button
+              onClick={(e) => { e.stopPropagation(); onClick(movie); }}
+              className="flex-[2] h-11 bg-amber-500 text-black rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-amber-400 transition active:scale-95 shadow-lg shadow-amber-500/20"
+            >
+              Watch Now
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); onClick(movie); }}
+              className="flex-1 h-11 bg-white/5 border border-white/10 text-white rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-white/10 transition active:scale-95"
+            >
+              Details
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </article>
   );
 };
 

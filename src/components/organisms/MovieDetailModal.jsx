@@ -120,7 +120,7 @@ const MovieDetailModal = ({ movie, onClose }) => {
                </div>
             </div>
 
-            {/* Synopsis & Intent */}
+            {/* Synopsis & Intention */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                <div className="space-y-4">
                   <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-500 border-b border-white/5 pb-3">Synopsis</h3>
@@ -129,11 +129,22 @@ const MovieDetailModal = ({ movie, onClose }) => {
                   </p>
                </div>
                <div className="space-y-4">
-                  <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-500 border-b border-white/5 pb-3">Director's Intent</h3>
+                  <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-500 border-b border-white/5 pb-3">Intention</h3>
                   <p className="text-[15px] text-zinc-400 leading-relaxed font-medium italic">
                      "{movie?.directorIntent}"
                   </p>
                </div>
+            </div>
+
+            {/* Message */}
+            <div className="space-y-4 pt-4 border-t border-white/5">
+               <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-500">Message</h3>
+               <p className="text-[16px] text-stone-300 leading-relaxed font-medium italic">
+                  "{movie?.directorMessage || movie?.directorComment || "이 작품을 보는 관객 각자가 자신의 장면을 발견하길 바랍니다."}"
+               </p>
+               <p className="text-[10px] font-bold text-amber-500/60 uppercase tracking-[0.2em]">
+                  — {movie?.director} 감독
+               </p>
             </div>
 
             {/* Bottom Actions */}

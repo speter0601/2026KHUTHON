@@ -1,17 +1,14 @@
 import { Outlet } from 'react-router-dom';
+import Header from '../components/organisms/Header';
 
 /**
  * MainLayout Component
- * Clean layout wrapper that preserves the routing architecture
- * without injecting legacy UI elements.
+ * Centralized layout that provides a global Header and consistent theme.
  */
 const MainLayout = () => {
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      {/* 
-          Legacy PolicyOS header and navigation removed.
-          MOV:ON pages manage their own headers or use specific components.
-      */}
+      <Header />
       <main>
         <Outlet />
       </main>

@@ -67,25 +67,25 @@ const MovieInfoSection = ({ movie }) => {
                 </p>
              </div>
 
-             {/* Director Intent */}
+             {/* Intention */}
              <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <span className="text-amber-500/80 text-xl">🎬</span>
-                  <Title level={3} className="text-white text-xl uppercase tracking-widest">Director's Intent</Title>
+                  <Title level={3} className="text-white text-xl uppercase tracking-widest">Intention</Title>
                 </div>
-                <p className="text-lg text-zinc-400 leading-relaxed font-medium max-w-3xl">
-                  {movie.directorIntent}
+                <p className="text-lg text-zinc-400 leading-relaxed font-medium max-w-3xl italic">
+                  "{movie.directorIntent}"
                 </p>
              </div>
           </div>
 
           <div className="space-y-8">
-             {/* Director Comment */}
+             {/* Message */}
              <div className="p-8 bg-white/5 border border-white/10 rounded-3xl space-y-4 relative overflow-hidden group">
                 <div className="absolute -top-4 -right-4 text-8xl text-white/5 font-serif select-none group-hover:text-amber-500/5 transition-colors">"</div>
-                <Title level={3} className="text-white text-sm uppercase tracking-widest border-b border-white/5 pb-4">Director's Comment</Title>
+                <Title level={3} className="text-white text-sm uppercase tracking-widest border-b border-white/5 pb-4">Message</Title>
                 <p className="text-base text-zinc-400 leading-relaxed italic font-medium">
-                  "{movie.directorComment}"
+                  "{movie.directorMessage || movie.directorComment || "이 작품을 보는 관객 각자가 자신의 장면을 발견하길 바랍니다."}"
                 </p>
                 <div className="pt-2">
                   <span className="text-[11px] font-bold text-amber-500/60 uppercase tracking-widest">— {movie.director} 감독</span>
