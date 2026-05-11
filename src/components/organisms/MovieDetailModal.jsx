@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 /**
@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
  */
 const MovieDetailModal = ({ movie, onClose }) => {
   const navigate = useNavigate();
+  const [showBookmarkToast, setShowBookmarkToast] = useState(false);
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -114,9 +115,15 @@ const MovieDetailModal = ({ movie, onClose }) => {
                   >
                     지금 시청하기
                   </button>
-                  <button className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-xl hover:bg-white/10 transition active:scale-95">
-                    🔖
-                  </button>
+                  <button 
+                     onClick={() => {
+                       setShowBookmarkToast(true);
+                       setTimeout(() => setShowBookmarkToast(false), 2500);
+                     }}
+                     className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-xl hover:bg-white/10 transition active:scale-95"
+                   >
+                     🔖
+                   </button>
                </div>
             </div>
 
@@ -165,6 +172,16 @@ const MovieDetailModal = ({ movie, onClose }) => {
           </div>
         </div>
       </div>
+
+      {/* Bookmark Toast */}
+      {showBookmarkToast && (
+        <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[200] animate-in slide-in-from-top-4 fade-in duration-300">
+           <div className="bg-[#1a1a1a] border border-amber-500/50 text-white px-8 py-4 rounded-2xl font-black shadow-[0_20px_50px_rgba(0,0,0,0.8)] flex items-center gap-3">
+              <span className="text-amber-500">🔖</span>
+              북마크에 저장되었습니다
+           </div>
+        </div>
+      )}
     </div>
   );
 };

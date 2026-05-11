@@ -5,7 +5,7 @@ import { useState } from "react";
  * Refines the shadow for a floating effect and eliminates harsh lines in the preview panel.
  * Keeps the poster image clear and visible, focusing on external depth rather than internal darkening.
  */
-const MovieCard = ({ movie, onClick }) => {
+const MovieCard = ({ movie, onClick, disableHover = false }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
 
@@ -20,7 +20,7 @@ const MovieCard = ({ movie, onClick }) => {
 
   // 2. Safe Preview Image
   const previewImage = movie?.videoThumbnail || movie?.stillImage || movie?.posterImage;
-  const posterImage = movie?.posterImage || movie?.stillImage;
+  const posterImage = movie?.posterImage || movie?.stillImage || movie?.posterPreview;
 
   // Styles based on posterTone
   const toneStyles = {
@@ -38,33 +38,41 @@ const MovieCard = ({ movie, onClick }) => {
 
   const currentTone = toneStyles[movie?.posterTone] || toneStyles.minimal;
 
+  const handleMouseEnter = () => {
+    if (!disableHover) setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    if (!disableHover) setIsHovered(false);
+  };
+
   return (
     <article
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       onClick={() => onClick && onClick(movie)}
       className={`relative h-[320px] transition-[flex-grow,flex-basis,width,transform,box-shadow,border-color] duration-[520ms] ease-[cubic-bezier(0.16,1,0.3,1)] cursor-pointer overflow-hidden rounded-xl bg-zinc-950 border border-white/10 group flex
-        ${isHovered
+        ${!disableHover && isHovered
           ? "md:min-w-[520px] md:flex-[2.8] border-white/20 shadow-[0_32px_80px_rgba(0,0,0,0.5),0_0_30px_rgba(245,158,11,0.06)] z-30"
           : "flex-1 min-w-[200px] shadow-lg z-10"}
       `}
     >
       {/* External Cinematic Depth Layer (Floating Shadow) */}
-      <div className={`absolute inset-0 z-0 bg-gradient-to-br from-white/5 via-transparent to-amber-500/5 transition-opacity duration-[520ms] pointer-events-none ${isHovered ? "opacity-100" : "opacity-0"}`} />
+      <div className={`absolute inset-0 z-0 bg-gradient-to-br from-white/5 via-transparent to-amber-500/5 transition-opacity duration-[520ms] pointer-events-none ${!disableHover && isHovered ? "opacity-100" : "opacity-0"}`} />
 
       {/* --- POSTER SECTION --- */}
-      <div className={`relative h-full shrink-0 transition-[width] duration-[520ms] ease-[cubic-bezier(0.16,1,0.3,1)] z-10 ${isHovered ? "md:w-[220px] w-full" : "w-full"}`}>
+      <div className={`relative h-full shrink-0 transition-[width] duration-[520ms] ease-[cubic-bezier(0.16,1,0.3,1)] z-10 ${!disableHover && isHovered ? "md:w-[220px] w-full" : "w-full"}`}>
         <img
           src={posterImage}
           alt={title}
-          className={`h-full w-full object-cover transition-all duration-1000 ${isHovered ? "brightness-[0.85] contrast-105" : "brightness-100"} ${movie?.posterTone === 'noir' ? 'grayscale-[0.2]' : ''}`}
+          className={`h-full w-full object-cover transition-all duration-1000 ${!disableHover && isHovered ? "brightness-[0.85] contrast-105" : "brightness-100"} ${movie?.posterTone === 'noir' ? 'grayscale-[0.2]' : ''}`}
         />
 
         {/* Cinematic Gradient Overlay (Lightened on Hover) */}
-        <div className={`absolute inset-0 bg-gradient-to-t ${currentTone} transition-opacity duration-[520ms] ${isHovered ? "opacity-20" : "opacity-100"}`} />
+        <div className={`absolute inset-0 bg-gradient-to-t ${currentTone} transition-opacity duration-[520ms] ${!disableHover && isHovered ? "opacity-20" : "opacity-100"}`} />
 
         {/* Poster Internal Typography (Fixed & Clear) */}
-        <div className={`absolute inset-0 p-5 flex flex-col justify-between pointer-events-none transition-all duration-[520ms] ${isHovered ? "opacity-100 translate-x-0" : "opacity-100 translate-x-0"}`}>
+        <div className={`absolute inset-0 p-5 flex flex-col justify-between pointer-events-none transition-all duration-[520ms] ${!disableHover && isHovered ? "opacity-100 translate-x-0" : "opacity-100 translate-x-0"}`}>
           <div className="space-y-1">
             <p className="text-[8px] font-black tracking-[0.3em] text-amber-500 uppercase">{movie?.awardText || "OFFICIAL SELECTION"}</p>
             <p className="text-[11px] font-bold text-zinc-300 leading-tight italic line-clamp-2">{movie?.tagline}</p>
@@ -78,7 +86,7 @@ const MovieCard = ({ movie, onClick }) => {
 
       {/* --- PREVIEW PANEL (RIGHT SIDE) --- */}
       <div className={`relative flex-1 h-full overflow-hidden transition-[opacity,transform] duration-[520ms] ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col bg-zinc-950 border-l border-white/10 hidden md:flex z-20
-        ${isHovered ? "opacity-100 translate-x-0 pointer-events-auto" : "opacity-0 translate-x-1 pointer-events-none"}
+        ${!disableHover && isHovered ? "opacity-100 translate-x-0 pointer-events-auto" : "opacity-0 translate-x-1 pointer-events-none"}
       `}>
         {/* 1. Preview Visual Area (Gradient Transition) */}
         <div className="relative h-36 w-full shrink-0 overflow-hidden bg-zinc-900">
@@ -111,7 +119,7 @@ const MovieCard = ({ movie, onClick }) => {
 
         {/* 2. Preview Metadata Content Layer (Optimized Layout) */}
         <div className={`relative z-30 -mt-12 p-6 flex-1 flex flex-col justify-between transition-[opacity,transform] duration-[520ms] ease-[cubic-bezier(0.16,1,0.3,1)]
-          ${isHovered ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0"}
+          ${!disableHover && isHovered ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0"}
         `}>
           {/* Subtle Glass Backdrop Blur for Integration */}
           <div className="absolute inset-0 z-0 bg-gradient-to-b from-zinc-950/40 via-zinc-950/90 to-zinc-950 backdrop-blur-[3px] pointer-events-none" />

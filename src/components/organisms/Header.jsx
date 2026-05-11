@@ -3,7 +3,7 @@ import { Link, NavLink } from "react-router-dom";
 /**
  * Global Header Component for MOV:ON
  * Provides consistent navigation across all main pages.
- * Features active state tracking for EXPLORE and MY LIBRARY.
+ * Navigation Order: Explore - My Library - Community
  */
 const Header = () => {
   return (
@@ -47,6 +47,26 @@ const Header = () => {
             {({ isActive }) => (
               <>
                 My Library
+                {isActive && (
+                  <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-amber-500 rounded-full animate-in fade-in zoom-in duration-300" />
+                )}
+              </>
+            )}
+          </NavLink>
+
+          <NavLink 
+            to="/community" 
+            className={({ isActive }) => 
+              `transition-all duration-300 relative py-1 ${
+                isActive 
+                ? "text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]" 
+                : "text-zinc-500 hover:text-zinc-300"
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <>
+                Community
                 {isActive && (
                   <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-amber-500 rounded-full animate-in fade-in zoom-in duration-300" />
                 )}

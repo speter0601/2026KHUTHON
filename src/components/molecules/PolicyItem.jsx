@@ -6,10 +6,10 @@ import Subtitle from '../atoms/Subtitle';
  * Features a clean layout with status badges.
  */
 const PolicyItem = ({ name, status, date, className = "" }) => {
-  const statusVariant = 
-    status === 'Active' ? 'success' : 
-    status === 'Pending' ? 'warning' : 
-    status === 'Archived' ? 'neutral' : 'neutral';
+  const statusVariant =
+    status === 'Active' ? 'success' :
+      status === 'Pending' ? 'warning' :
+        status === 'Archived' ? 'neutral' : 'neutral';
 
   return (
     <div className={`

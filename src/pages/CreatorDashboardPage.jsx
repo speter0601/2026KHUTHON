@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { movies } from "../data/movies";
+import Header from "../components/organisms/Header";
+import FeedbackPage from './FeedbackPage';
 
 // --- SUB-COMPONENTS ---
 
@@ -295,9 +297,15 @@ const CreatorDashboardPage = () => {
     directorComment: "",
     genres: []
   });
+  
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [activeChartTab, setActiveChartTab] = useState("조회수");
   const [activeFeedbackFolder, setActiveFeedbackFolder] = useState("전체 피드백");
+  
+  const [toast, setToast] = useState({ show: false, message: "" });
+  const [modal, setModal] = useState({ show: false, type: "", content: null });
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [isReportSaving, setIsReportSaving] = useState(false);
 
   const genreList = [
     "액션", "코미디", "드라마", "로맨스", "스릴러", "공포",
@@ -327,11 +335,7 @@ const CreatorDashboardPage = () => {
       { time: "Narrative", user: "피드백B", text: "인물의 선택이 중요한 장면인데, 그 선택을 하게 된 이유가 한두 컷 정도 더 있으면 좋겠습니다.", sentiment: "Neutral" },
       { time: "Mixing", user: "피드백C", text: "카페 장면에서 주변 소음이 인물의 대사를 조금 가리는 부분이 있습니다.", sentiment: "Warning" }
     ],
-    "감독 메모": [
-      { time: "Note 1", user: "Self", text: "03:12 창문 앞 장면은 구도가 좋지만 컷이 조금 길어져 리듬이 느슨해짐. 다음 편집 시 검토.", sentiment: "Neutral" },
-      { time: "Note 2", user: "Self", text: "음악이 감정을 너무 직접적으로 설명하지 않게 볼륨 밸런스 조정 필요.", sentiment: "Neutral" },
-      { time: "Note 3", user: "Self", text: "마지막 시선 처리를 2초 정도 더 오래 가져갈지 수정본에서 테스트.", sentiment: "Neutral" }
-    ]
+    "AI 요약": [] // Placeholder for AI Summary view
   };
 
   const feedbackFolders = [
@@ -339,7 +343,6 @@ const CreatorDashboardPage = () => {
     { title: "장면별 피드백", count: 12, description: "특정 타임라인에 기록된 반응입니다.", icon: "⏱" },
     { title: "긍정적 반응", count: 9, description: "작품의 강점으로 언급된 내용입니다.", icon: "✨" },
     { title: "개선 요청", count: 4, description: "보완이 필요한 부분에 대한 의견입니다.", icon: "💡" },
-    { title: "감독 메모", count: 3, description: "수정 시 참고할 개인 기록입니다.", icon: "📝" },
     { title: "AI 요약", count: "NEW", description: "전체 피드백을 AI가 분석한 리포트입니다.", icon: "🧠" },
   ];
 
@@ -359,17 +362,37 @@ const CreatorDashboardPage = () => {
     }
   }, [movieId]);
 
-  if (!movie) return null;
+  const showToast = (message) => {
+    setToast({ show: true, message });
+    setTimeout(() => setToast({ show: false, message: "" }), 2500);
+  };
 
   const toggleGenre = (genre) => {
     setSelectedGenres(prev => prev.includes(genre) ? prev.filter(g => g !== genre) : [...prev, genre]);
   };
 
-  const handleSave = (e) => { e.preventDefault(); alert("변경사항이 성공적으로 저장되었습니다."); };
+  const handleSave = (e) => { 
+    e.preventDefault(); 
+    showToast("변경사항이 저장되었습니다");
+  };
+
+  if (!movie) return <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center">Loading...</div>;
 
   return (
-    <main className="min-h-screen bg-[#0a0a0a] text-white overflow-x-hidden pt-4">
+    <main className="min-h-screen bg-[#0a0a0a] text-white overflow-x-hidden pt-4 relative">
+      <Header />
+      
       <div className="max-w-7xl mx-auto px-8 py-12 space-y-24">
+        {/* Custom Toast */}
+        {toast.show && (
+          <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-top-4 fade-in duration-300">
+            <div className="bg-amber-500 text-black px-8 py-4 rounded-2xl font-black shadow-2xl flex items-center gap-3">
+              <span className="text-xl">✅</span>
+              {toast.message}
+            </div>
+          </div>
+        )}
+
         <form onSubmit={handleSave} className="space-y-24">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-white/5 pb-10">
             <div className="space-y-4">
@@ -419,7 +442,7 @@ const CreatorDashboardPage = () => {
               </div>
             </div>
 
-            {/* SYNOPSIS & INTENTION & MESSAGE */}
+            {/* SYNOPSIS & INTENTION */}
             <div className="space-y-8 pt-10 border-t border-white/5">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="space-y-4">
@@ -430,19 +453,6 @@ const CreatorDashboardPage = () => {
                   <label className="text-xl font-black tracking-tight flex items-center gap-3"><span className="w-1.5 h-6 bg-zinc-700 rounded-full" />연출의도</label>
                   <textarea value={formData.directorIntent} onChange={(e) => setFormData({ ...formData, directorIntent: e.target.value })} className="w-full bg-black/40 border border-white/5 rounded-2xl p-6 text-sm font-medium leading-relaxed outline-none focus:border-amber-500/50 min-h-[200px] resize-none transition-all focus:bg-black/60" />
                 </div>
-              </div>
-              <div className="p-6 bg-white/5 border border-white/10 rounded-2xl flex flex-col md:flex-row md:items-center gap-4">
-                <div className="shrink-0 flex items-center gap-2">
-                   <span className="text-amber-500 italic font-black uppercase text-[10px] tracking-widest">Message</span>
-                   <span className="w-1 h-1 rounded-full bg-zinc-700" />
-                </div>
-                <input 
-                   type="text" 
-                   value={formData.directorComment}
-                   onChange={(e) => setFormData({...formData, directorComment: e.target.value})}
-                   className="flex-1 bg-transparent text-sm italic font-medium text-zinc-300 outline-none placeholder:text-zinc-700"
-                   placeholder="관객에게 전하는 짧은 메시지를 입력하세요."
-                />
               </div>
             </div>
           </div>
@@ -460,18 +470,33 @@ const CreatorDashboardPage = () => {
               <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 blur-[60px] rounded-full group-hover:bg-amber-500/10 transition-colors" />
               <div className="space-y-2 relative z-10"><span className="text-[10px] font-black text-amber-500 uppercase tracking-widest">Growth Recommendation</span><h4 className="text-2xl font-black tracking-tighter leading-tight">시청 지속시간을 <br /> 15% 더 높일 수 있습니다.</h4></div>
               <p className="text-xs font-medium text-zinc-500 leading-relaxed relative z-10">12분 30초 지점에서 시청 이탈이 집중되고 있습니다. <br /> 해당 구간의 편집이나 서사 호흡을 점검해보세요.</p>
-              <button className="w-full py-4 bg-white text-black rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-zinc-200 transition-colors relative z-10">세부 분석 보고서 보기</button>
+              <button 
+                type="button"
+                onClick={() => setIsReportOpen(true)}
+                className="w-full py-4 bg-white text-black rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-zinc-200 transition-colors relative z-10"
+              >
+                세부 분석 보고서 보기
+              </button>
             </div>
           </div>
         </div>
-
-        {/* FEEDBACK */}
+				
+        {/* FEEDBACK SECTION */}
         <div className="space-y-10 pb-32">
           <div className="flex items-end justify-between border-b border-white/5 pb-6">
             <div className="space-y-2"><h2 className="text-3xl font-black tracking-tighter uppercase">받은 피드백</h2><p className="text-[11px] font-bold text-zinc-500 uppercase tracking-widest">관객들의 목소리를 통해 작품의 깊이를 더해보세요.</p></div>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-10">
-            <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">{feedbackFolders.map(folder => (<FeedbackFolder key={folder.title} {...folder} isActive={activeFeedbackFolder === folder.title} onClick={() => setActiveFeedbackFolder(folder.title)} />))}</div>
+            <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
+              {feedbackFolders.map(folder => (
+                <FeedbackFolder 
+                  key={folder.title} 
+                  {...folder} 
+                  isActive={activeFeedbackFolder === folder.title} 
+                  onClick={() => setActiveFeedbackFolder(folder.title)} 
+                />
+              ))}
+            </div>
             <div className="bg-zinc-900/40 rounded-[2rem] border border-white/10 p-10 min-h-[500px] flex flex-col">
               {activeFeedbackFolder === "AI 요약" ? (
                 <div className="space-y-10 animate-in fade-in duration-500">
@@ -500,6 +525,119 @@ const CreatorDashboardPage = () => {
           </div>
         </div>
       </div>
+
+      {/* AI Detailed Report Modal */}
+      {isReportOpen && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-6 animate-in fade-in duration-300">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setIsReportOpen(false)} />
+          <div className="relative w-full max-w-4xl max-h-[85vh] bg-[#0d0d0d] border border-white/10 rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col animate-in zoom-in-95 duration-300">
+            {/* Modal Header */}
+            <header className="p-8 border-b border-white/5 flex items-center justify-between shrink-0 bg-white/2">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                   <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                   <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-amber-500">AI Analytics Intelligence</h2>
+                </div>
+                <h3 className="text-2xl font-black tracking-tighter">세부 분석 보고서</h3>
+              </div>
+              <button 
+                onClick={() => setIsReportOpen(false)}
+                className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-zinc-500 hover:bg-white/10 hover:text-white transition"
+              >
+                ✕
+              </button>
+            </header>
+
+            {/* Modal Content */}
+            <div className="flex-1 overflow-y-auto p-10 space-y-12 scrollbar-hide">
+              <section className="space-y-4">
+                <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2">
+                  <span className="w-4 h-[1px] bg-zinc-800" /> Executive Summary
+                </h4>
+                <div className="p-8 rounded-[2rem] bg-gradient-to-br from-amber-500/10 to-transparent border border-amber-500/20">
+                  <p className="text-lg font-bold leading-relaxed text-zinc-200">
+                    "<span className="text-amber-500">{movie?.title}</span>"은(는) 관객들에게 <span className="text-white underline decoration-amber-500/50">강렬한 시각적 인상</span>과 <span className="text-white underline decoration-amber-500/50">몰입감 있는 서사</span>를 제공하고 있습니다. 
+                    특히 <span className="text-white font-black">20대 남성</span> 관객층에서 가장 높은 선호도를 보이며, 평균 시청 시간이 업계 평균 대비 <span className="text-emerald-500">+15%</span> 높게 측정되었습니다.
+                  </p>
+                </div>
+              </section>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div className="p-8 rounded-3xl bg-white/5 border border-white/5 space-y-2">
+                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Sentiment Score</p>
+                  <p className="text-4xl font-black text-white">84<span className="text-lg text-zinc-500 ml-1">/100</span></p>
+                  <div className="h-1 w-full bg-zinc-800 rounded-full overflow-hidden">
+                    <div className="h-full bg-emerald-500 w-[84%]" />
+                  </div>
+                </div>
+                <div className="p-8 rounded-3xl bg-white/5 border border-white/5 space-y-2">
+                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Engagement Level</p>
+                  <p className="text-4xl font-black text-white">High</p>
+                  <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Top 5% of this month</p>
+                </div>
+              </div>
+
+              <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="md:col-span-2 space-y-6">
+                  <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2">
+                    <span className="w-4 h-[1px] bg-zinc-800" /> AI Semantic Analysis
+                  </h4>
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <h5 className="text-sm font-black text-white flex items-center gap-2">
+                        <span className="text-amber-500">●</span> 시각적 미장센의 탁월성
+                      </h5>
+                      <p className="text-[13px] text-zinc-400 leading-relaxed font-medium pl-4 border-l border-zinc-800">
+                        인공지능 모델은 이 작품의 색감과 조명 활용이 감정선을 극대화하는 데 결정적인 역할을 했다고 분석합니다. 특히 15분 지점의 전개는 관객 몰입도를 최고조로 끌어올립니다.
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <h5 className="text-sm font-black text-white flex items-center gap-2">
+                        <span className="text-rose-500">●</span> 개선 권장 사항
+                      </h5>
+                      <p className="text-[13px] text-zinc-400 leading-relaxed font-medium pl-4 border-l border-zinc-800">
+                        중반부의 호흡이 다소 느려지는 경향이 있어, 일부 관객의 이탈이 관찰되었습니다. 편집 과정에서 템포를 조절하거나 배경 음악의 변주를 주는 것을 추천합니다.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-8 rounded-[2rem] bg-zinc-900 border border-white/5 space-y-6">
+                  <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Audience Keyword</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {["몽환적인", "압도적인", "실험적인", "감각적", "철학적", "몰입감"].map(kw => (
+                      <span key={kw} className="px-3 py-1.5 rounded-full bg-white/5 text-[11px] font-bold text-zinc-300 border border-white/5">#{kw}</span>
+                    ))}
+                  </div>
+                  <div className="pt-6 border-t border-white/5">
+                    <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-3">Recommendation</p>
+                    <p className="text-xs font-bold leading-relaxed text-amber-500/80">
+                      이 작품의 '몽환적인' 톤앤매너를 유지하며 다음 프로젝트에서는 보다 명확한 서사 구조를 결합해 보세요.
+                    </p>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <footer className="p-8 border-t border-white/5 flex items-center justify-between bg-white/2 shrink-0">
+               <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Report Generated by MOV:ON Deepmind Core v2.4</p>
+               <button 
+                 onClick={() => {
+                   setIsReportSaving(true);
+                   setTimeout(() => {
+                     setIsReportSaving(false);
+                     showToast("PDF로 저장되었습니다");
+                   }, 1000);
+                 }}
+                 disabled={isReportSaving}
+                 className="px-6 py-3 bg-amber-500 text-black text-[11px] font-black uppercase tracking-[0.2em] rounded-xl hover:bg-amber-400 transition disabled:opacity-50"
+               >
+                 {isReportSaving ? "SAVING..." : "Download PDF Report"}
+               </button>
+            </footer>
+          </div>
+        </div>
+      )}
+
       <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[30vw] font-black text-white/[0.01] pointer-events-none select-none tracking-tighter">DASHBOARD</div>
     </main>
   );

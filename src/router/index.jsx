@@ -1,6 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
-import HomePage from '../pages/HomePage';
+import HomePage from '../pages/Homepage';
 import MovieDetailPage from '../pages/MovieDetailPage';
 import WatchPage from '../pages/WatchPage';
 import FeedbackPage from '../pages/FeedbackPage';
@@ -8,6 +8,7 @@ import CreatorProfilePage from '../pages/CreatorProfilePage';
 import UserMyPage from '../pages/UserMyPage';
 import UploadPage from '../pages/UploadPage';
 import CreatorDashboardPage from '../pages/CreatorDashboardPage';
+import CommunityPage from '../pages/CommunityPage';
 import NotFound from '../pages/NotFound';
 
 /**
@@ -50,6 +51,10 @@ export const router = createBrowserRouter([
       {
         path: 'upload',
         element: <UploadPage />,
+      },
+      {
+        path: 'community',
+        element: <CommunityPage />,
       },
       {
         path: '*',

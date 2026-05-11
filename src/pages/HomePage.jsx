@@ -1,8 +1,9 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { movies } from "../data/movies";
 import MovieCard from "../components/molecules/MovieCard";
 import MovieDetailModal from "../components/organisms/MovieDetailModal";
+import Header from "../components/organisms/Header";
 import EventHeroCarousel from "../components/organisms/EventHeroCarousel";
 
 const categories = ["전체", "드라마", "로맨스", "다큐", "실험영화", "청춘", "새로운 발견", "높은 평점"];
@@ -10,21 +11,29 @@ const categories = ["전체", "드라마", "로맨스", "다큐", "실험영화"
 export default function HomePage() {
   const [activeCategory, setActiveCategory] = useState("전체");
   const [selectedMovie, setSelectedMovie] = useState(null);
+  const [uploadedMovies, setUploadedMovies] = useState([]);
+
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem("myUploads") || "[]");
+    setUploadedMovies(saved);
+  }, []);
+
+  const allMovies = useMemo(() => {
+    return [...uploadedMovies, ...movies];
+  }, [uploadedMovies]);
 
   const filteredMovies = useMemo(() => {
-    let result = movies;
+    if (activeCategory === "전체") return allMovies;
     if (activeCategory === "높은 평점") {
-      result = [...movies].sort((a, b) => parseFloat(b.rating) - parseFloat(a.rating));
-    } else if (activeCategory === "새로운 발견") {
-      result = movies.filter(m => m.tags.includes("신작") || m.id > 15 || m.releaseDate.startsWith("2026"));
-    } else if (activeCategory !== "전체") {
-      result = movies.filter(movie => movie.genres.includes(activeCategory));
+      return [...allMovies].sort((a, b) => parseFloat(b.rating || 0) - parseFloat(a.rating || 0));
     }
-    return result;
-  }, [activeCategory]);
+    if (activeCategory === "새로운 발견") {
+      return allMovies.filter(m => m.tags?.includes("신작") || m.id > 15 || m.isUserUpload);
+    }
+    return allMovies.filter(movie => movie.genres?.includes(activeCategory));
+  }, [activeCategory, allMovies]);
 
   // Group movies into rows for smooth horizontal expansion behavior
-  // This ensures neighboring cards push each other naturally within the same flex container.
   const movieRows = useMemo(() => {
     const rows = [];
     const itemsPerRow = 5; 
@@ -36,6 +45,8 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-[#0a0a0a] text-white selection:bg-amber-500 selection:text-black">
+      <Header />
+      
       {/* Background Ambience */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-amber-500/5 blur-[120px] rounded-full animate-pulse" />
@@ -43,7 +54,6 @@ export default function HomePage() {
       </div>
 
       <div className="relative">
-        
         {/* Main Hero Block: Restored Event Carousel */}
         <EventHeroCarousel onMovieClick={setSelectedMovie} />
 
