@@ -4,7 +4,7 @@
 
 MOV:ON은 신진 독립영화 감독들이 작품을 업로드하고, 관객으로부터 타임스탬프 기반 실시간 피드백을 받을 수 있는 플랫폼입니다. AI 분석 리포트, 크리에이터 대시보드, 커뮤니티 기능을 제공합니다.
 
-![MOV:ON Platform](https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?auto=format&fit=crop&w=1200&q=80)
+![MOV:ON Platform](public/assets/preview.png)
 
 ---
 
