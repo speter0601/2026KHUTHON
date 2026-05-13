@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import MovieCard from "../components/molecules/MovieCard";
-import Header from "../components/organisms/Header";
 
 const AVAILABLE_TAGS = [
    "액션", "코미디", "드라마", "로맨스", "스릴러", "공포",
@@ -40,14 +39,13 @@ const UploadPage = () => {
    const trailerInputRef = useRef(null);
    const videoInputRef = useRef(null);
 
-   // Cleanup URLs to avoid memory leaks
+   // Cleanup URLs (only video/trailer blob URLs, NOT poster which is base64)
    useEffect(() => {
       return () => {
-         if (posterPreview) URL.revokeObjectURL(posterPreview);
-         if (trailerPreview) URL.revokeObjectURL(trailerPreview);
-         if (videoPreview) URL.revokeObjectURL(videoPreview);
+         if (trailerPreview && trailerPreview.startsWith('blob:')) URL.revokeObjectURL(trailerPreview);
+         if (videoPreview && videoPreview.startsWith('blob:')) URL.revokeObjectURL(videoPreview);
       };
-   }, [posterPreview, trailerPreview, videoPreview]);
+   }, [trailerPreview, videoPreview]);
 
    const simulateUpload = (type, file, callback) => {
       let progress = 0;
@@ -73,7 +71,12 @@ const UploadPage = () => {
       if (type === 'poster') {
          setPosterFile(file);
          setPosterProgress(1);
-         simulateUpload('poster', file, (url) => setPosterPreview(url));
+         // Use FileReader to get base64 — persists across navigation
+         const reader = new FileReader();
+         reader.onloadstart = () => setPosterProgress(30);
+         reader.onprogress = (ev) => { if (ev.lengthComputable) setPosterProgress(Math.round((ev.loaded / ev.total) * 80)); };
+         reader.onload = (ev) => { setPosterProgress(100); setPosterPreview(ev.target.result); };
+         reader.readAsDataURL(file);
       } else if (type === 'trailer') {
          setTrailerFile(file);
          setTrailerProgress(1);
@@ -145,7 +148,6 @@ const UploadPage = () => {
 
    return (
       <main className="min-h-screen bg-[#0a0a0a] text-white relative">
-         <Header />
          
          <div className="py-20 px-8">
             {/* Custom Toast */}

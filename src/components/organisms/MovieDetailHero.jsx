@@ -5,9 +5,10 @@ const MovieDetailHero = ({ movie }) => {
         {/* Poster */}
         <div className="relative aspect-[3/4] rounded-[2rem] overflow-hidden shadow-[0_30px_60px_-12px_rgba(0,0,0,0.7)] group">
           <img 
-            src={movie.posterImage} 
+            src={movie.posterImage || movie.stillImage} 
             alt={movie.title} 
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=800&q=80"; }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
         </div>
@@ -15,9 +16,10 @@ const MovieDetailHero = ({ movie }) => {
         {/* Still Image / Video Thumbnail */}
         <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl group cursor-pointer bg-zinc-900">
           <img 
-            src={movie.stillImage} 
+            src={movie.stillImage || movie.posterImage} 
             alt="Still cut" 
             className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-700"
+            onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&w=1200&q=80"; }}
           />
           <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
           

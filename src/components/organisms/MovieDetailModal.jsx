@@ -78,6 +78,7 @@ const MovieDetailModal = ({ movie, onClose }) => {
                src={movie?.stillImage || movie?.posterImage} 
                alt="Still cut" 
                className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-700"
+               onError={(e) => { if (movie?.posterImage) e.target.src = movie.posterImage; }}
              />
              <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent" />
              

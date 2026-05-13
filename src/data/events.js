@@ -7,7 +7,7 @@ export const events = [
     type: "기획전",
     date: "2025.05.01 - 05.31",
     ctaLabel: "기획전 영화 보기",
-    image: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1600&q=80",
+    image: "https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?auto=format&fit=crop&w=1600&q=80",
     accent: "amber",
     status: "ongoing"
   },
@@ -31,7 +31,7 @@ export const events = [
     type: "챌린지",
     date: "상시 진행",
     ctaLabel: "영화 업로드하기",
-    image: "https://images.unsplash.com/photo-1492691523567-61123617a3a9?auto=format&fit=crop&w=1600&q=80",
+    image: "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=1600&q=80",
     accent: "amber",
     status: "ongoing"
   },

@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { movies } from "../data/movies";
 import MovieCard from "../components/molecules/MovieCard";
 import LibraryCard from "../components/molecules/LibraryCard";
-import Header from "../components/organisms/Header";
 
 const UserMyPage = () => {
    const navigate = useNavigate();
@@ -12,10 +11,26 @@ const UserMyPage = () => {
    const bookmarkedMovies = movies.slice(0, 4);
    
    useEffect(() => {
-      // Load from localStorage
+      // Load from localStorage and clean up invalid blob URLs
       const savedUploads = JSON.parse(localStorage.getItem("myUploads") || "[]");
-      setUploadedMovies(savedUploads);
+      const cleaned = savedUploads.map(m => {
+         const img = m.posterPreview || m.posterImage || "";
+         if (img.startsWith("blob:")) {
+            // Blob URLs are invalid after reload — remove them
+            return { ...m, posterPreview: null, posterImage: null };
+         }
+         return m;
+      });
+      // Persist cleaned data back so blob URLs don't linger
+      localStorage.setItem("myUploads", JSON.stringify(cleaned));
+      setUploadedMovies(cleaned);
    }, []);
+
+   const handleDelete = (movie) => {
+      const updated = uploadedMovies.filter(m => m.id !== movie.id);
+      setUploadedMovies(updated);
+      localStorage.setItem("myUploads", JSON.stringify(updated));
+   };
 
    // Combine with some static demo uploads if needed
    const staticMyUploads = movies.slice(10, 11); // Just one demo upload
@@ -23,7 +38,6 @@ const UserMyPage = () => {
 
    return (
       <main className="min-h-screen bg-[#0a0a0a] text-white">
-         <Header />
          <div className="py-20 px-8">
             <div className="max-w-6xl mx-auto space-y-16">
             {/* User Header */}
@@ -64,6 +78,7 @@ const UserMyPage = () => {
                               key={movie.id} 
                               movie={movie} 
                               onClick={(m) => navigate(`/movies/${m.id}/dashboard`)} 
+                              onDelete={movie.isUserUpload ? handleDelete : undefined}
                            />
                         ))
                      ) : (
@@ -83,9 +98,28 @@ const UserMyPage = () => {
                      </h2>
                      <button className="text-xs font-black text-zinc-500 uppercase tracking-widest hover:text-white transition">View All</button>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                      {bookmarkedMovies.map(movie => (
-                        <MovieCard key={movie.id} movie={movie} onClick={(m) => navigate(`/movies/${m.id}`)} />
+                        <div
+                          key={movie.id}
+                          onClick={() => navigate(`/movies/${movie.id}`)}
+                          className="relative h-[280px] rounded-2xl overflow-hidden cursor-pointer group border border-white/5 hover:border-white/15 transition-colors"
+                        >
+                          <img
+                            src={movie.posterImage || movie.stillImage}
+                            alt={movie.title}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            onError={(e) => { if (movie.stillImage) e.target.src = movie.stillImage; }}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                          <div className="absolute inset-0 p-4 flex flex-col justify-between pointer-events-none">
+                            <p className="text-[8px] font-black tracking-[0.25em] text-amber-500/80 uppercase">{movie.awardText || "SELECTION"}</p>
+                            <div>
+                              <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1">{movie.posterCredit}</p>
+                              <h3 className="text-base font-black tracking-tight text-white uppercase leading-tight">{movie.posterTitle || movie.title}</h3>
+                            </div>
+                          </div>
+                        </div>
                      ))}
                   </div>
                </section>

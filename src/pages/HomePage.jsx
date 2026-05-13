@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { movies } from "../data/movies";
 import MovieCard from "../components/molecules/MovieCard";
 import MovieDetailModal from "../components/organisms/MovieDetailModal";
-import Header from "../components/organisms/Header";
 import EventHeroCarousel from "../components/organisms/EventHeroCarousel";
 
 const categories = ["전체", "드라마", "로맨스", "다큐", "실험영화", "청춘", "새로운 발견", "높은 평점"];
@@ -15,7 +14,15 @@ export default function HomePage() {
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("myUploads") || "[]");
-    setUploadedMovies(saved);
+    // Filter out entries with blob URLs (invalid after page reload)
+    const valid = saved.map(m => {
+      const img = m.posterPreview || m.posterImage || "";
+      if (img.startsWith("blob:")) {
+        return { ...m, posterPreview: null, posterImage: null };
+      }
+      return m;
+    });
+    setUploadedMovies(valid);
   }, []);
 
   const allMovies = useMemo(() => {
@@ -45,7 +52,6 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-[#0a0a0a] text-white selection:bg-amber-500 selection:text-black">
-      <Header />
       
       {/* Background Ambience */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">

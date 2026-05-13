@@ -60,10 +60,7 @@ const MovieDetailPage = () => {
         <MovieDetailHero movie={movie} />
         <MovieInfoSection movie={movie} />
 
-        {/* Aesthetic Background Text */}
-        <div className="absolute top-[30%] -right-[15vw] text-[25vw] font-black text-white/2 pointer-events-none select-none tracking-tighter leading-none -rotate-90 origin-center">
-          {movie.title}
-        </div>
+
       </div>
     </main>
   );

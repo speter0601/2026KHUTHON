@@ -63,9 +63,10 @@ const MovieCard = ({ movie, onClick, disableHover = false }) => {
       {/* --- POSTER SECTION --- */}
       <div className={`relative h-full shrink-0 transition-[width] duration-[520ms] ease-[cubic-bezier(0.16,1,0.3,1)] z-10 ${!disableHover && isHovered ? "md:w-[220px] w-full" : "w-full"}`}>
         <img
-          src={posterImage}
+          src={posterImage || "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=800&q=80"}
           alt={title}
           className={`h-full w-full object-cover transition-all duration-1000 ${!disableHover && isHovered ? "brightness-[0.85] contrast-105" : "brightness-100"} ${movie?.posterTone === 'noir' ? 'grayscale-[0.2]' : ''}`}
+          onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=800&q=80"; }}
         />
 
         {/* Cinematic Gradient Overlay (Lightened on Hover) */}
